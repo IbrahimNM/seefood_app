@@ -9,4 +9,4 @@ To verify that the application has the permission to **write on the device stora
 4. **Give** the application a permission to Storage.
 5. **Give** the application a permission to Camera.
 
-> currently, the seefood app needs these permission to functions. On the future this issue will be resolved.
+> currently, the seefood app needs these permissions to run properly. On the future this issue will be resolved.
