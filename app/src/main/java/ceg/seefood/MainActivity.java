@@ -1,10 +1,13 @@
 package ceg.seefood;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -80,7 +83,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 if (which == 0){
                     // If user chooses camera, then open camera.
-                    openDeviceCamera();
+                    if(ActivityCompat.checkSelfPermission(
+                            MainActivity.this,Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+                        ActivityCompat.requestPermissions(MainActivity.this,
+                                new String[]{Manifest.permission.CAMERA},REQUEST_IMAGE_CAPTURE);
+
+                        openDeviceCamera();
+
+                    }else{
+                        openDeviceCamera();
+                    }
+
                 } else {
                     // If user chooses import from device, then open their storage. [1]
                     openImageChooser();
