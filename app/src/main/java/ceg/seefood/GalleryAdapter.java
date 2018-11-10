@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.TransitionOptions;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
@@ -29,7 +28,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup group, int type){
         RecyclerView.ViewHolder viewHolder;
-        View v = LayoutInflater.from(group.getContext()).inflate(R.layout.gallery_item_layout,group,false);
+        View v;
+        v = LayoutInflater.from(group.getContext()).inflate(R.layout.gallery_item_layout,group,false);
         viewHolder = new ImageHolder(v);
 
         return viewHolder;
@@ -39,13 +39,14 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int index){
 
         RequestOptions options = new RequestOptions()
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .override(200,200);
+                .diskCacheStrategy(DiskCacheStrategy.ALL);
+
 
         Glide.with(context).load(images.get(index).getUrl())
                 .thumbnail(0.5f)
                 .transition(new DrawableTransitionOptions().crossFade())
-                .apply(options);
+                .apply(options)
+                .into(((ImageHolder)holder).img);
     }
 
     @Override
