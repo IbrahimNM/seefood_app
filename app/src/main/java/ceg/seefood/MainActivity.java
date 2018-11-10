@@ -1,36 +1,17 @@
 package ceg.seefood;
 
-import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.app.Dialog;
-import android.graphics.Color;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.widget.TextView;
-
-import java.util.ArrayList;
-
 import java.io.File;
-import java.io.IOError;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -41,6 +22,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // Global buttons
     private Button _uploadBtn, _galleryBtn, _aboutBtn;
     private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final int FILE_SELECT_CODE = 0;
     String mCurrentPhotoPath;
 
     //ImageView tmp;
@@ -51,9 +33,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // initialize buttons
         initializeButtons();
-//        tmp  = (ImageView) findViewById(R.id.imageView);
-
-
     }
 
     private void initializeButtons(){
@@ -74,14 +53,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // Determine clicked button
         switch(v.getId()){
             case R.id.uploadbtn:
-                // TODO: Show options || go directly to gallry w/ camera.
+                //  Show options || go directly to gallry w/ camera.
                 showUploadOptions();
                 break;
             case R.id.gallerybtn:
                 launchGallery();
                 break;
             case R.id.aboutbtn:
-                // TODO: Show infromation about product.
+                // Show infromation about product.
                 AlertDialog infoDialog = new AlertDialog.Builder(this).create();
                 infoDialog.setTitle("About");
                 infoDialog.setMessage("Version 1.0.0\nThis is CEG4110 group project\nContact at: unknown@example.com\nFAQ:\n" +
@@ -92,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
     // show uploading options after clicking the upload button
     private void showUploadOptions(){
-        String[] options = {"Camera", "Import from device"};
+        String[] options = {"Take a photo", "Import from device"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Upload image(s) from ...");
         builder.setItems(options, new DialogInterface.OnClickListener() {
@@ -100,17 +79,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onClick(DialogInterface dialog, int which) {
 
                 if (which == 0){
-                    // TODO: check permissions
                     // If user chooses camera, then open camera.
                     openDeviceCamera();
                 } else {
-                    // TODO: If user chooses import from device, then open their storage. [1]
+                    // If user chooses import from device, then open their storage. [1]
+                    openImageChooser();
                 }
             }
         });
         builder.show();
     }
+    private void openImageChooser(){
+        Intent storageIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        storageIntent.setType("image/*");
+        Intent chooser = Intent.createChooser(storageIntent, "Choose an image");
+        startActivityForResult(chooser, FILE_SELECT_CODE);
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        // Verify that the file chooser is the caller,
+        if (resultCode == RESULT_OK && requestCode == FILE_SELECT_CODE){
+            Uri selectedImage = data.getData();
+            // Move to the feedback window activity
+            moveToFeedbackWindow(selectedImage);
+        }
+    }
 
+    private void moveToFeedbackWindow(Uri selectedImageUri){
+        Intent feedbackIntent = new Intent(MainActivity.this, Feedback_Window.class);
+        // Send image uri to feedback
+        feedbackIntent.putExtra("ImageUri", selectedImageUri.toString());
+        startActivity(feedbackIntent);
+    }
     // Opens the device's camera when users choose to use camera.
     private void openDeviceCamera(){
         // Create new intent
@@ -136,8 +136,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // TODO: Hold a reference of the image inside a bitmap variable.
                 /*Bitmap mBitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
                 tmp.setImageBitmap(mBitmap);*/
-            }
 
+            }
 
         }
 
