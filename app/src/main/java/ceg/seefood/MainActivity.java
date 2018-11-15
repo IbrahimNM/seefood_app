@@ -16,9 +16,11 @@ import android.view.View;
 import android.widget.Button;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-
+import java.util.zip.ZipInputStream;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -27,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int FILE_SELECT_CODE = 0;
     String mCurrentPhotoPath;
+    ArrayList<String> mImagesToUpload = new ArrayList<>();
 
     //ImageView tmp;
     @Override
@@ -113,6 +116,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // Verify that the file chooser is the caller,
         if (resultCode == RESULT_OK && requestCode == FILE_SELECT_CODE){
             Uri selectedImage = data.getData();
+
+            // TODO: Upload images to EC2 after storing data
+            mImagesToUpload.add(selectedImage.toString());
+
             // Move to the feedback window activity
             moveToFeedbackWindow(selectedImage);
         }
