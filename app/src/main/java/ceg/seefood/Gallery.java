@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.Inflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -39,18 +40,13 @@ public class Gallery extends AppCompatActivity {
     String path;
     String folderName;
     String zipName;
-    String destination;
+    File gallery;
     File downloads;
-    File dest;
+    File pics[];
 
     ArrayList<GalleryItem> images = new ArrayList<>();
 
-    public String IMGS[] = {
-            "https://food.fnr.sndimg.com/content/dam/images/food/fullset/2018/6/0/FN_snapchat_coachella_wingman%20.jpeg.rend.hgtvcom.616.462.suffix/1523633513292.jpeg",
-            "https://images.unsplash.com/photo-1532022900249-74610fde3038?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=0338782777520b5dfcf1b6dc5daf35e8&auto=format&fit=crop&w=1000&q=60",
-            "https://images.unsplash.com/photo-1511516412963-801b050c92aa?ixlib=rb-0.3.5&s=e12fd2d93d316b892db9ec20d5c904d3&auto=format&fit=crop&w=1050&q=80",
-            "https://images.unsplash.com/photo-1531947398206-60f8e97f34a2?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=981b88e56d0d329347e68f1831a57b08&auto=format&fit=crop&w=1000&q=60"
-    };
+    public List<String> IMGS = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,33 +54,47 @@ public class Gallery extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
 
+        // Paths for all of the necessary locations
         zipName = "/Name.zip";
         downloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         path = downloads.getAbsolutePath();
         folderName = path + zipName;
+        gallery = new File(path + "/imgs/thumbnails");
 
+        // Download the gallery folder if it isn't currently stored on the device
         if(!(new File(folderName).exists())) {
             downloadGallery();
         }
 
+        // Checks file permissions and unzips the folder if granted. The zip file is the deleted
         if(ActivityCompat.checkSelfPermission(
                 Gallery.this,Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(Gallery.this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},1024);
 
             unzip(folderName);
+            deleteZip(folderName);
 
         }else{
             unzip(folderName);
+            deleteZip(folderName);
         }
 
-        for(int i = 0; i < IMGS.length; i++){
+        // Copies the name of each file into a list of strings
+        pics = gallery.listFiles();
+        for(int i = 0; i < pics.length; i++){
+            IMGS.add(pics[i].getPath());
+        }
+
+        // Creates a gallery item for each filename of the gallery
+        for(int i = 0; i < IMGS.size(); i++){
             GalleryItem item = new GalleryItem();
             item.setName("Image " + i);
-            item.setUrl(IMGS[i]);
+            item.setUrl(IMGS.get(i));
             images.add(item);
         }
 
+        // Puts the gallery items into a view
         recyclerView = (RecyclerView)findViewById(R.id.gallery);
         recyclerView.setLayoutManager(new GridLayoutManager(this,3));
         recyclerView.setHasFixedSize(true);
@@ -93,6 +103,7 @@ public class Gallery extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
+    // Unzips the gallery folder
     public static boolean unzip(String source){
 
         InputStream inputStream;
@@ -109,9 +120,11 @@ public class Gallery extends AppCompatActivity {
             byte[] buffer = new byte[4096];
             int count;
 
+            // Loops through each image in the folder and writes them to the new folder
             while((zipEntry = zipInputStream.getNextEntry()) != null){
                 filename = zipEntry.getName();
 
+                // Create the final destination directory if it doesn't exist
                 if(!(new File(parent + "/imgs/thumbnails")).isDirectory()){
                     File fileDir = new File(parent + "/imgs/thumbnails");
                     fileDir.mkdir();
@@ -119,6 +132,7 @@ public class Gallery extends AppCompatActivity {
 
                 FileOutputStream fileOutputStream = new FileOutputStream(parent + "/" + filename);
 
+                // Writes the file to the unzipped folder destination
                 while((count = zipInputStream.read(buffer)) != -1){
                     fileOutputStream.write(buffer,0,count);
                 }
@@ -136,10 +150,20 @@ public class Gallery extends AppCompatActivity {
         return true;
     }
 
+    // Downloads the gallery as a zipped folder from the SeeFood server
     private void downloadGallery (){
         Intent retrieveGallery = new Intent(
                 Intent.ACTION_VIEW,
                 Uri.parse("http://seefood.moostermiko.com:80/thumbnails"));
         startActivity(retrieveGallery);
+    }
+
+    // Deletes the zipped folder that was downloaded so that the gallery is always up-to-date
+    // whenever it is being viewed
+    public void deleteZip(String zipFile){
+        File file = new File(zipFile);
+        if(file.exists()){
+            file.delete();
+        }
     }
 }
