@@ -2,6 +2,7 @@ package ceg.seefood;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -102,29 +103,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        // TODO: Handle when an image is taken by the Camera.
-        // Verify that the file chooser is the caller,
+
+
         ArrayList<Uri> imagUris = new ArrayList<Uri>();
         if (resultCode == RESULT_OK && requestCode == FILE_SELECT_CODE && data != null){
 
+            // Check if multiple images have been selected
             if (data.getClipData() != null){
                 Toast.makeText(this, "Multiple! " + data.getClipData().getItemCount(), Toast.LENGTH_LONG).show();
 
-                // Store selected images into arraylist
+                // Send selected images to the feedback view.
                 for (int i = 0; i < data.getClipData().getItemCount(); i++){
-                    // Get images uri, then store them in imagUri arraylist.
-                    imagUris.add(data.getClipData().getItemAt(i).getUri());
-                    // display image sequencelly to the user.
-                    moveToFeedbackWindow(imagUris.get(i));
+                    // display image sequentially to the user.
+                    moveToFeedbackWindow(data.getClipData().getItemAt(i).getUri());
                 }
-                //return;
+
             } else {
+                // A single image was selected.
                 Toast.makeText(this, "Single!", Toast.LENGTH_LONG).show();
-                Uri selectedImage = data.getData();
-                // Move to the feedback window activity
-                moveToFeedbackWindow(selectedImage);
-               // return;
+                // Send the single image to the feedback view
+                moveToFeedbackWindow(data.getData());
             }
+        }
+        // If image is taken by the Camera
+        if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE){
+            Toast.makeText(this, "Camera!", Toast.LENGTH_LONG).show();
+            // Hold the captured image uri
+            Uri capturedImage = Uri.parse(mCurrentPhotoPath);
+            Toast.makeText(this, "Uri: " + capturedImage, Toast.LENGTH_LONG).show();
+            // send the captured image for feedback window.
+            moveToFeedbackWindow(capturedImage);
         }
 
     }
