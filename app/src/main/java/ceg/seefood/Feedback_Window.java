@@ -17,8 +17,14 @@ public class Feedback_Window extends AppCompatActivity {
         picture = (ImageView) findViewById(R.id.theImage);
         // Retrieve passed data
         String passedUri = getIntent().getStringExtra("ImageUri");
+        // Parse the String to an actual Uri
         Uri imageUri = Uri.parse(passedUri);
 
+        // TODO: Convert image to bitmap.
+        // TODO: Convert bitmap to base46 string.
+        // TODO: Send image to seefood server.
+        // Display image to user
         picture.setImageURI(imageUri);
+        // TODO: Display reponse to user
     }
 }

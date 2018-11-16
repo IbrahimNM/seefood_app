@@ -11,9 +11,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 
@@ -92,17 +95,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void openImageChooser(){
         Intent storageIntent = new Intent(Intent.ACTION_GET_CONTENT);
         storageIntent.setType("image/*");
+        // Enable selecting multiple images form gallery
+        storageIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         Intent chooser = Intent.createChooser(storageIntent, "Choose an image");
         startActivityForResult(chooser, FILE_SELECT_CODE);
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        // TODO: Handle when an image is taken by the Camera.
         // Verify that the file chooser is the caller,
-        if (resultCode == RESULT_OK && requestCode == FILE_SELECT_CODE){
-            Uri selectedImage = data.getData();
-            // Move to the feedback window activity
-            moveToFeedbackWindow(selectedImage);
+        ArrayList<Uri> imagUris = new ArrayList<Uri>();
+        if (resultCode == RESULT_OK && requestCode == FILE_SELECT_CODE && data != null){
+
+            if (data.getClipData() != null){
+                Toast.makeText(this, "Multiple! " + data.getClipData().getItemCount(), Toast.LENGTH_LONG).show();
+
+                // Store selected images into arraylist
+                for (int i = 0; i < data.getClipData().getItemCount(); i++){
+                    // Get images uri, then store them in imagUri arraylist.
+                    imagUris.add(data.getClipData().getItemAt(i).getUri());
+                    // display image sequencelly to the user.
+                    moveToFeedbackWindow(imagUris.get(i));
+                }
+                //return;
+            } else {
+                Toast.makeText(this, "Single!", Toast.LENGTH_LONG).show();
+                Uri selectedImage = data.getData();
+                // Move to the feedback window activity
+                moveToFeedbackWindow(selectedImage);
+               // return;
+            }
         }
+
     }
 
     private void moveToFeedbackWindow(Uri selectedImageUri){
