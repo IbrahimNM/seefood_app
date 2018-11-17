@@ -55,11 +55,13 @@ public class Gallery extends AppCompatActivity {
         setContentView(R.layout.activity_gallery);
 
         // Paths for all of the necessary locations
-        zipName = "/Name.zip";
+        zipName = "/thumbs.zip";
         downloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         path = downloads.getAbsolutePath();
         folderName = path + zipName;
         gallery = new File(path + "/imgs/thumbnails");
+
+        deleteZip(folderName);
 
         // Download the gallery folder if it isn't currently stored on the device
         if(!(new File(folderName).exists())) {
@@ -154,7 +156,7 @@ public class Gallery extends AppCompatActivity {
     private void downloadGallery (){
         Intent retrieveGallery = new Intent(
                 Intent.ACTION_VIEW,
-                Uri.parse("http://seefood.moostermiko.com:80/thumbnails"));
+                Uri.parse("http://aplus.moostermiko.com/thumbnails"));
         startActivity(retrieveGallery);
     }
 
