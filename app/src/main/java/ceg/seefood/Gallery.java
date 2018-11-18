@@ -1,6 +1,7 @@
 package ceg.seefood;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -14,12 +15,23 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.Response.ErrorListener;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HurlStack;
+import com.android.volley.toolbox.Volley;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -28,7 +40,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.zip.Inflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -43,6 +57,7 @@ public class Gallery extends AppCompatActivity {
     File gallery;
     File downloads;
     File pics[];
+    InputStreamVolleyRequest request;
 
     ArrayList<GalleryItem> images = new ArrayList<>();
 
@@ -154,10 +169,33 @@ public class Gallery extends AppCompatActivity {
 
     // Downloads the gallery as a zipped folder from the SeeFood server
     private void downloadGallery (){
-        Intent retrieveGallery = new Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse("http://aplus.moostermiko.com/thumbnails"));
-        startActivity(retrieveGallery);
+        String url = "http://seefood.moostermiko.com:80/thumbnails";
+        request = new InputStreamVolleyRequest(Request.Method.GET, url, new Response.Listener<byte[]>(){
+            @Override
+            public void onResponse(byte[] response){
+                try{
+                    if(response != null){
+                        FileOutputStream outputStream;
+                        String name = "thumbs.zip";
+                        outputStream = openFileOutput(name, Context.MODE_PRIVATE);
+                        outputStream.write(response);
+                        outputStream.close();
+                    }
+                } catch(Exception e){
+                    Log.d("KEY_ERROR","UNABLE TO DOWNLOAD FILE");
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener(){
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("KEY_ERROR", "UNABLE TO DOWNLOAD FILE. ERROR:: "+error.getMessage());
+            }
+        }, null);
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext(), new HurlStack());
+        requestQueue.add(request);
     }
 
     // Deletes the zipped folder that was downloaded so that the gallery is always up-to-date
