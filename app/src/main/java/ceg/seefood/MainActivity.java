@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int FILE_SELECT_CODE = 0;
     String mCurrentPhotoPath;
+    Uri photoURI;
 
     //ImageView tmp;
     @Override
@@ -93,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
         builder.show();
     }
+    // Opens the image chooser.
     private void openImageChooser(){
         Intent storageIntent = new Intent(Intent.ACTION_GET_CONTENT);
         storageIntent.setType("image/*");
@@ -128,11 +130,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // If image is taken by the Camera
         if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE){
             Toast.makeText(this, "Camera!", Toast.LENGTH_LONG).show();
-            // Hold the captured image uri
-            Uri capturedImage = Uri.parse(mCurrentPhotoPath);
-            Toast.makeText(this, "Uri: " + capturedImage, Toast.LENGTH_LONG).show();
             // send the captured image for feedback window.
-            moveToFeedbackWindow(capturedImage);
+            moveToFeedbackWindow(photoURI);
         }
 
     }
@@ -159,15 +158,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
 
             if (photoFile != null){
-                Uri photoURI = FileProvider.getUriForFile(this,
+                // Store captured image URI.
+                 photoURI = FileProvider.getUriForFile(this,
                         "com.example.android fileprovider",
                         photoFile);
                 cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(cameraIntent, REQUEST_IMAGE_CAPTURE);
-
-                // TODO: Hold a reference of the image inside a bitmap variable.
-                /*Bitmap mBitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
-                tmp.setImageBitmap(mBitmap);*/
 
             }
 
@@ -184,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
     }
-
+    // opens the gallery for users.
     private void launchGallery(){
         Intent intent = new Intent(this, Gallery.class);
         startActivity(intent);

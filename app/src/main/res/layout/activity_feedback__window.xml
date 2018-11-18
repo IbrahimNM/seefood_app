@@ -25,7 +25,7 @@
         <ImageView
             android:id="@+id/theImage"
             android:layout_width="match_parent"
-            android:layout_height="480dp"
+            android:layout_height="432dp"
             app:srcCompat="@color/colorAccent" />
 
         <TextView
