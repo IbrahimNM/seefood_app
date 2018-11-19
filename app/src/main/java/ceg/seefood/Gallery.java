@@ -95,11 +95,12 @@ public class Gallery extends AppCompatActivity {
         }
 
         // Copies the name of each file into a list of strings
-        pics = gallery.listFiles();
-        for(int i = 0; i < pics.length; i++){
-            IMGS.add(pics[i].getPath());
+        if (gallery.isDirectory()) {
+            pics = gallery.listFiles();
+            for (int i = 0; i < pics.length; i++) {
+                IMGS.add(pics[i].getPath());
+            }
         }
-
         // Creates a gallery item for each filename of the gallery
         for(int i = 0; i < IMGS.size(); i++){
             GalleryItem item = new GalleryItem();
