@@ -1,11 +1,17 @@
 package ceg.seefood;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+
+import android.content.pm.PackageManager;
+
 import android.graphics.Bitmap;
+
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -16,10 +22,11 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-
+import java.util.zip.ZipInputStream;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -29,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final int FILE_SELECT_CODE = 0;
     String mCurrentPhotoPath;
     Uri photoURI;
+
 
     //ImageView tmp;
     @Override
@@ -85,7 +93,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 if (which == 0){
                     // If user chooses camera, then open camera.
-                    openDeviceCamera();
+                    if(ActivityCompat.checkSelfPermission(
+                            MainActivity.this,Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+                        ActivityCompat.requestPermissions(MainActivity.this,
+                                new String[]{Manifest.permission.CAMERA},REQUEST_IMAGE_CAPTURE);
+
+                        openDeviceCamera();
+
+                    }else{
+                        openDeviceCamera();
+                    }
+
                 } else {
                     // If user chooses import from device, then open their storage. [1]
                     openImageChooser();
@@ -105,7 +123,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
-
 
         ArrayList<Uri> imagUris = new ArrayList<Uri>();
         if (resultCode == RESULT_OK && requestCode == FILE_SELECT_CODE && data != null){
