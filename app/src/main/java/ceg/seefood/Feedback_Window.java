@@ -21,6 +21,8 @@ import com.android.volley.toolbox.Volley;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,6 +47,8 @@ public class Feedback_Window extends AppCompatActivity {
         // Parse the String to an actual Uri
         Uri imageUri = Uri.parse(passedUri);
 
+        // Create a file name for submittion
+        final String fileName = new SimpleDateFormat("yyyyMMddHHmmss'.jpeg'").format(new Date());
 
         // Display image to user
         picture.setImageURI(imageUri);
@@ -81,7 +85,7 @@ public class Feedback_Window extends AppCompatActivity {
                 protected Map<String,String> getParams(){
                     Map<String,String> params = new HashMap<String, String>();
                     params.put("file", encodeToBase64(mImage, Bitmap.CompressFormat.JPEG, 100));
-                    params.put("name", "jasmine.jpeg");
+                    params.put("name", fileName );
                     return params;
                 }
             };
