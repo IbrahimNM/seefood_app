@@ -57,7 +57,6 @@ public class Gallery extends AppCompatActivity {
     File gallery;
     File downloads;
     File pics[];
-    InputStreamVolleyRequest request;
 
     ArrayList<GalleryItem> images = new ArrayList<>();
 
@@ -75,8 +74,6 @@ public class Gallery extends AppCompatActivity {
         path = downloads.getAbsolutePath();
         folderName = path + zipName;
         gallery = new File(path + "/imgs/thumbnails");
-
-        deleteZip(folderName);
 
         // Download the gallery folder if it isn't currently stored on the device
         if(!(new File(folderName).exists())) {
@@ -144,7 +141,7 @@ public class Gallery extends AppCompatActivity {
                 // Create the final destination directory if it doesn't exist
                 if(!(new File(parent + "/imgs/thumbnails")).isDirectory()){
                     File fileDir = new File(parent + "/imgs/thumbnails");
-                    fileDir.mkdir();
+                    fileDir.mkdirs();
                 }
 
                 FileOutputStream fileOutputStream = new FileOutputStream(parent + "/" + filename);
@@ -170,32 +167,7 @@ public class Gallery extends AppCompatActivity {
     // Downloads the gallery as a zipped folder from the SeeFood server
     private void downloadGallery (){
         String url = "http://seefood.moostermiko.com:80/thumbnails";
-        request = new InputStreamVolleyRequest(Request.Method.GET, url, new Response.Listener<byte[]>(){
-            @Override
-            public void onResponse(byte[] response){
-                try{
-                    if(response != null){
-                        FileOutputStream outputStream;
-                        String name = "thumbs.zip";
-                        outputStream = openFileOutput(name, Context.MODE_PRIVATE);
-                        outputStream.write(response);
-                        outputStream.close();
-                    }
-                } catch(Exception e){
-                    Log.d("KEY_ERROR","UNABLE TO DOWNLOAD FILE");
-                    e.printStackTrace();
-                }
-            }
-        }, new Response.ErrorListener(){
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("KEY_ERROR", "UNABLE TO DOWNLOAD FILE. ERROR:: "+error.getMessage());
-            }
-        }, null);
-
-        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext(), new HurlStack());
-        requestQueue.add(request);
+        new DownloadFileAsync().execute(url);
     }
 
     // Deletes the zipped folder that was downloaded so that the gallery is always up-to-date
