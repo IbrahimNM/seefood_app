@@ -3,7 +3,11 @@ package ceg.seefood;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+
 import android.content.pm.PackageManager;
+
+import android.graphics.Bitmap;
+
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -14,6 +18,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +35,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int FILE_SELECT_CODE = 0;
     String mCurrentPhotoPath;
-    ArrayList<String> mImagesToUpload = new ArrayList<>();
+    Uri photoURI;
+
 
     //ImageView tmp;
     @Override
@@ -105,24 +112,45 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
         builder.show();
     }
+    // Opens the image chooser.
     private void openImageChooser(){
         Intent storageIntent = new Intent(Intent.ACTION_GET_CONTENT);
         storageIntent.setType("image/*");
+        // Enable selecting multiple images form gallery
+        storageIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         Intent chooser = Intent.createChooser(storageIntent, "Choose an image");
         startActivityForResult(chooser, FILE_SELECT_CODE);
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        // Verify that the file chooser is the caller,
-        if (resultCode == RESULT_OK && requestCode == FILE_SELECT_CODE){
-            Uri selectedImage = data.getData();
 
-            // TODO: Upload images to EC2 after storing data
-            mImagesToUpload.add(selectedImage.toString());
+        ArrayList<Uri> imagUris = new ArrayList<Uri>();
+        if (resultCode == RESULT_OK && requestCode == FILE_SELECT_CODE && data != null){
 
-            // Move to the feedback window activity
-            moveToFeedbackWindow(selectedImage);
+            // Check if multiple images have been selected
+            if (data.getClipData() != null){
+                Toast.makeText(this, "Multiple! " + data.getClipData().getItemCount(), Toast.LENGTH_LONG).show();
+
+                // Send selected images to the feedback view.
+                for (int i = 0; i < data.getClipData().getItemCount(); i++){
+                    // display image sequentially to the user.
+                    moveToFeedbackWindow(data.getClipData().getItemAt(i).getUri());
+                }
+
+            } else {
+                // A single image was selected.
+                Toast.makeText(this, "Single!", Toast.LENGTH_LONG).show();
+                // Send the single image to the feedback view
+                moveToFeedbackWindow(data.getData());
+            }
         }
+        // If image is taken by the Camera
+        if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE){
+            Toast.makeText(this, "Camera!", Toast.LENGTH_LONG).show();
+            // send the captured image for feedback window.
+            moveToFeedbackWindow(photoURI);
+        }
+
     }
 
     private void moveToFeedbackWindow(Uri selectedImageUri){
@@ -147,15 +175,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
 
             if (photoFile != null){
-                Uri photoURI = FileProvider.getUriForFile(this,
+                // Store captured image URI.
+                 photoURI = FileProvider.getUriForFile(this,
                         "com.example.android fileprovider",
                         photoFile);
                 cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(cameraIntent, REQUEST_IMAGE_CAPTURE);
-
-                // TODO: Hold a reference of the image inside a bitmap variable.
-                /*Bitmap mBitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
-                tmp.setImageBitmap(mBitmap);*/
 
             }
 
@@ -172,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
     }
-
+    // opens the gallery for users.
     private void launchGallery(){
         Intent intent = new Intent(this, Gallery.class);
         startActivity(intent);
