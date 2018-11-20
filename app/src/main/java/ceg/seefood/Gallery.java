@@ -29,6 +29,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.Volley;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -86,10 +88,12 @@ public class Gallery extends AppCompatActivity {
             ActivityCompat.requestPermissions(Gallery.this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},1024);
 
+            deleteZip(gallery.getAbsolutePath());
             unzip(folderName);
             deleteZip(folderName);
 
         }else{
+            deleteZip(gallery.getAbsolutePath());
             unzip(folderName);
             deleteZip(folderName);
         }
@@ -101,6 +105,7 @@ public class Gallery extends AppCompatActivity {
                 IMGS.add(pics[i].getPath());
             }
         }
+
         // Creates a gallery item for each filename of the gallery
         for(int i = 0; i < IMGS.size(); i++){
             GalleryItem item = new GalleryItem();
@@ -178,8 +183,13 @@ public class Gallery extends AppCompatActivity {
 
     // Downloads the gallery as a zipped folder from the SeeFood server
     private void downloadGallery (){
-        String url = "http://seefood.moostermiko.com:80/thumbnails";
-        new DownloadFileAsync().execute(url);
+        try {
+            String url = "http://seefood.moostermiko.com:80/thumbnails";
+            new DownloadFileAsync().execute(url).get();
+            
+        } catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     // Deletes the zipped folder that was downloaded so that the gallery is always up-to-date
@@ -188,6 +198,17 @@ public class Gallery extends AppCompatActivity {
         File file = new File(zipFile);
         if(file.exists()){
             file.delete();
+        }
+
+        if(file.isDirectory()){
+            File folder = new File(zipFile);
+
+            try {
+                FileUtils.deleteDirectory(folder);
+
+            } catch(IOException e){
+                e.printStackTrace();
+            }
         }
     }
 }
