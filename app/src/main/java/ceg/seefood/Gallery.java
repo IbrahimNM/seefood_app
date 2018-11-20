@@ -1,49 +1,26 @@
 package ceg.seefood;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.Response.ErrorListener;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.HurlStack;
-import com.android.volley.toolbox.Volley;
+import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.StringTokenizer;
-import java.util.zip.Inflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -86,10 +63,12 @@ public class Gallery extends AppCompatActivity {
             ActivityCompat.requestPermissions(Gallery.this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},1024);
 
+            deleteZip(gallery.getAbsolutePath());
             unzip(folderName);
             deleteZip(folderName);
 
         }else{
+            deleteZip(gallery.getAbsolutePath());
             unzip(folderName);
             deleteZip(folderName);
         }
@@ -101,6 +80,7 @@ public class Gallery extends AppCompatActivity {
                 IMGS.add(pics[i].getPath());
             }
         }
+
         // Creates a gallery item for each filename of the gallery
         for(int i = 0; i < IMGS.size(); i++){
             GalleryItem item = new GalleryItem();
@@ -116,6 +96,17 @@ public class Gallery extends AppCompatActivity {
 
         adapter = new GalleryAdapter(Gallery.this, images);
         recyclerView.setAdapter(adapter);
+
+        recyclerView.addOnItemTouchListener(new ImageClickListener(this,
+                new ImageClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        Intent intent = new Intent(Gallery.this, DetailActivity.class);
+                        intent.putParcelableArrayListExtra("images", images);
+                        intent.putExtra("pos", position);
+                        startActivity(intent);
+                    }
+                }));
     }
 
     // Unzips the gallery folder
@@ -167,8 +158,13 @@ public class Gallery extends AppCompatActivity {
 
     // Downloads the gallery as a zipped folder from the SeeFood server
     private void downloadGallery (){
-        String url = "http://seefood.moostermiko.com:80/thumbnails";
-        new DownloadFileAsync().execute(url);
+        try {
+            String url = "http://seefood.moostermiko.com:80/thumbnails";
+            new DownloadFileAsync().execute(url).get();
+            
+        } catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     // Deletes the zipped folder that was downloaded so that the gallery is always up-to-date
@@ -177,6 +173,17 @@ public class Gallery extends AppCompatActivity {
         File file = new File(zipFile);
         if(file.exists()){
             file.delete();
+        }
+
+        if(file.isDirectory()){
+            File folder = new File(zipFile);
+
+            try {
+                FileUtils.deleteDirectory(folder);
+
+            } catch(IOException e){
+                e.printStackTrace();
+            }
         }
     }
 }

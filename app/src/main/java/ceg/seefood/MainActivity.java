@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // Determine clicked button
         switch(v.getId()){
             case R.id.uploadbtn:
+                // TODO: Verify that the server is up & running before allowing users to submit any images.
                 //  Show options || go directly to gallry w/ camera.
                 showUploadOptions();
                 break;
@@ -84,9 +85,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
     // show uploading options after clicking the upload button
     private void showUploadOptions(){
+        // Display an option dialog for users
         String[] options = {"Take a photo", "Import from device"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Upload image(s) from ...");
+        builder.setIcon(R.drawable.uploadoptionicon);
         builder.setItems(options, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -97,10 +100,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             MainActivity.this,Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
                         ActivityCompat.requestPermissions(MainActivity.this,
                                 new String[]{Manifest.permission.CAMERA},REQUEST_IMAGE_CAPTURE);
-
+                        // TODO: Handle the case if user refuse to grant camera permission
                         openDeviceCamera();
-
                     }else{
+                        // Open camera.
                         openDeviceCamera();
                     }
 

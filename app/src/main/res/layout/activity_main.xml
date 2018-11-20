@@ -5,7 +5,7 @@
     android:id="@+id/baselayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/holo_blue_dark"
+    android:background="@drawable/logoseefood"
     tools:context=".MainActivity"
     tools:layout_editor_absoluteY="25dp">
 
@@ -36,7 +36,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/dd"
+        android:background="@drawable/newalbumicon"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.023"
@@ -46,18 +46,18 @@
 
     <Button
         android:id="@+id/aboutbtn"
-        android:layout_width="26dp"
-        android:layout_height="25dp"
+        android:layout_width="33dp"
+        android:layout_height="34dp"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/abouticon"
+        android:background="@drawable/newabouticon"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.976"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/uploadbtn"
         app:layout_constraintVertical_bias="1.0" />
