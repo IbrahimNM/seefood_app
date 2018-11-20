@@ -116,6 +116,17 @@ public class Gallery extends AppCompatActivity {
 
         adapter = new GalleryAdapter(Gallery.this, images);
         recyclerView.setAdapter(adapter);
+
+        recyclerView.addOnItemTouchListener(new ImageClickListener(this,
+                new ImageClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        Intent intent = new Intent(Gallery.this, DetailActivity.class);
+                        intent.putParcelableArrayListExtra("images", images);
+                        intent.putExtra("pos", position);
+                        startActivity(intent);
+                    }
+                }));
     }
 
     // Unzips the gallery folder
