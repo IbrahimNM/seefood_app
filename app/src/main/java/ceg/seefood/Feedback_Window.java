@@ -52,6 +52,8 @@ public class Feedback_Window extends AppCompatActivity {
 
         // Display image to user
         picture.setImageURI(imageUri);
+
+        // TODO: check that the server has reponsed to all submitted images before show the results.
         try {
             // Convert image to bitmap.
             mImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
@@ -70,7 +72,6 @@ public class Feedback_Window extends AppCompatActivity {
                             // Display reponse to user
                             _theResult.setText(response.substring(0, response.indexOf('[')).toUpperCase());
                             _theStats.setText(response.substring(response.indexOf('[')+2, response.length()-3));
-
                         }
                     },
                     new Response.ErrorListener() { // Error listener
