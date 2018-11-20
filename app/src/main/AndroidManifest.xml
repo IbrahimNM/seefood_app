@@ -41,7 +41,11 @@
             android:name=".Gallery"
             android:label="@string/title_activity_gallery"
             android:theme="@style/AppTheme" />
-        <activity android:name=".Feedback_Window"></activity>
+        <activity android:name=".Feedback_Window" />
+        <activity
+            android:name=".DetailActivity"
+            android:label="@string/title_activity_detail"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>
