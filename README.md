@@ -1,5 +1,6 @@
-# SeeFood App [![Build Status](https://travis-ci.com/IbrahimNM/seefood_app.svg?token=Z7DztJ4D33ytYAbsRtvx&branch=master)](https://travis-ci.com/IbrahimNM/seefood_app)
 
+# SeeFood App 
+[![Build Status](https://travis-ci.com/IbrahimNM/seefood_app.svg?token=Z7DztJ4D33ytYAbsRtvx&branch=master)](https://travis-ci.com/IbrahimNM/seefood_app) [![GitHub release](https://img.shields.io/badge/release-1.0.0-blue.svg)](https://github.com/IbrahimNM/seefood_app/releases/) [![GitHub license](https://img.shields.io/badge/license-Apache-yellowgreen.svg)](https://opensource.org/licenses/Apache-2.0)
 # Before launching the Application
 ## Permissions
 To verify that the application has the permission to **write on the device storage** and to use the **camera**.
