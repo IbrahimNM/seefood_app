@@ -1,6 +1,6 @@
 
 # SeeFood App 
-[![Build Status](https://travis-ci.com/IbrahimNM/seefood_app.svg?token=Z7DztJ4D33ytYAbsRtvx&branch=master)](https://travis-ci.com/IbrahimNM/seefood_app) [![GitHub release](https://img.shields.io/badge/release-1.0.0-blue.svg)](https://github.com/IbrahimNM/seefood_app/releases/) [![GitHub license](https://img.shields.io/badge/license-Apache-yellowgreen.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Build Status](https://travis-ci.com/IbrahimNM/seefood_app.svg?token=Z7DztJ4D33ytYAbsRtvx&branch=master)](https://travis-ci.com/IbrahimNM/seefood_app) [![GitHub release](https://img.shields.io/badge/release-1.0.0-blue.svg)](https://github.com/IbrahimNM/seefood_app/releases/) [![GitHub license](https://img.shields.io/badge/license-Apache-yellowgreen.svg)](https://opensource.org/licenses/Apache-2.0) [![CodeFactor](https://www.codefactor.io/repository/github/ibrahimnm/seefood_app/badge)](https://www.codefactor.io/repository/github/ibrahimnm/seefood_app)
 
 
 ## Getting Started
