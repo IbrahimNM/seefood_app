@@ -3,42 +3,37 @@ package ceg.seefood;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
-
 import android.content.pm.PackageManager;
-
-import android.graphics.Bitmap;
-
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.zip.ZipInputStream;
-
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    // Global buttons
-    private Button _uploadBtn, _galleryBtn, _aboutBtn;
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int FILE_SELECT_CODE = 0;
-    String mCurrentPhotoPath;
-    Uri photoURI;
+    // Global variables
+    private Button _uploadBtn, _galleryBtn, _aboutBtn;
+    private Uri photoURI;
 
 
-    //ImageView tmp;
+    /**
+     * MainActivity view.
+     *
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,23 +43,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initializeButtons();
     }
 
-    private void initializeButtons(){
+    /**
+     * Initializes the buttons by linking 'em to the layout buttons.
+     */
+    private void initializeButtons() {
         // initialize buttons
-        _uploadBtn = (Button) findViewById(R.id.uploadbtn);
-        _galleryBtn = (Button) findViewById(R.id.gallerybtn);
-        _aboutBtn = (Button) findViewById(R.id.aboutbtn);
+        _uploadBtn = findViewById(R.id.uploadbtn);
+        _galleryBtn = findViewById(R.id.gallerybtn);
+        _aboutBtn = findViewById(R.id.aboutbtn);
         // Set listener for all buttons
         _uploadBtn.setOnClickListener(this);
         _galleryBtn.setOnClickListener(this);
         _aboutBtn.setOnClickListener(this);
     }
 
-    // Handling buttons clicks
+    /**
+     * An onClick listener for the buttons initialized on initializeButtons();
+     *
+     * @param v: MainActivity view
+     */
     @Override
     public void onClick(View v) {
 
         // Determine clicked button
-        switch(v.getId()){
+        switch (v.getId()) {
             case R.id.uploadbtn:
                 // TODO: Verify that the server is up & running before allowing users to submit any images.
                 //  Show options || go directly to gallry w/ camera.
@@ -83,126 +85,182 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
-    // show uploading options after clicking the upload button
-    private void showUploadOptions(){
-        // Display an option dialog for users
+
+    /**
+     * Prompts uploading options dialog
+     */
+    private void showUploadOptions() {
+        // List the suggested options
         String[] options = {"Take a photo", "Import from device"};
+        // Create a new AlertDialog instance
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        // Set a title for the AlertDialog instance
         builder.setTitle("Upload image(s) from ...");
+        // Set an icon for the AlertDialog instance
         builder.setIcon(R.drawable.uploadoptionicon);
+        // Set suggested options to the AlertDialog && Handle selection.
         builder.setItems(options, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                if (which == 0){
+                // Option at index[0]
+                if (which == 0) {
                     // If user chooses camera, then open camera.
-                    if(ActivityCompat.checkSelfPermission(
-                            MainActivity.this,Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+                    if (ActivityCompat.checkSelfPermission(
+                            MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                         ActivityCompat.requestPermissions(MainActivity.this,
-                                new String[]{Manifest.permission.CAMERA},REQUEST_IMAGE_CAPTURE);
+                                new String[]{Manifest.permission.CAMERA}, REQUEST_IMAGE_CAPTURE);
                         // TODO: Handle the case if user refuse to grant camera permission
                         openDeviceCamera();
-                    }else{
+                    } else {
                         // Open camera.
                         openDeviceCamera();
                     }
 
                 } else {
-                    // If user chooses import from device, then open their storage. [1]
+                    // Option other than option at index[0]
+                    // If user chooses import from device, then open their storage.
                     openImageChooser();
                 }
             }
         });
         builder.show();
     }
-    // Opens the image chooser.
-    private void openImageChooser(){
+
+    /**
+     * Opens internal gallery storage chooser.
+     */
+    private void openImageChooser() {
+        // Create an Action_get_content intent
         Intent storageIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        // Set Action_get_content intent directory.
         storageIntent.setType("image/*");
         // Enable selecting multiple images form gallery
         storageIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        // Create a chooser intent with a title.
         Intent chooser = Intent.createChooser(storageIntent, "Choose an image");
+        // Start gallery chooser intent.
         startActivityForResult(chooser, FILE_SELECT_CODE);
+
+        /*
+         Note: The image chooser intent contents are handled on the onActivityResult(..);
+         */
     }
+
+    /**
+     * Handling image chooser intent, and device camera intent.
+     *
+     * @param requestCode: Determines the last used intent.
+     * @param resultCode:  Determines the status of the last used intent
+     * @param data:        Executed intent.
+     */
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        ArrayList<Uri> imagUris = new ArrayList<Uri>();
-        if (resultCode == RESULT_OK && requestCode == FILE_SELECT_CODE && data != null){
+        // Check if the last used intent was the image chooser.
+        if (resultCode == RESULT_OK && requestCode == FILE_SELECT_CODE && data != null) {
 
-            // Check if multiple images have been selected
-            if (data.getClipData() != null){
-                Toast.makeText(this, "Multiple! " + data.getClipData().getItemCount(), Toast.LENGTH_LONG).show();
+            // Check if multiple images were selected
+            if (data.getClipData() != null) {
 
                 // Send selected images to the feedback view.
-                for (int i = 0; i < data.getClipData().getItemCount(); i++){
-                    // display image sequentially to the user.
+                for (int i = 0; i < data.getClipData().getItemCount(); i++) {
+                    // Display image sequentially on the feedback view.
                     moveToFeedbackWindow(data.getClipData().getItemAt(i).getUri());
+                    /*
+                      Note: Maybe retreiving the items' Uri this way consumes more time!
+                      Suggested sol.: Store all selected images' Uri in an array.
+                     */
                 }
 
             } else {
                 // A single image was selected.
                 Toast.makeText(this, "Single!", Toast.LENGTH_LONG).show();
                 // Send the single image to the feedback view
-                moveToFeedbackWindow(data.getData());
+                if (data.getData() != null) {
+                    moveToFeedbackWindow(data.getData());
+                }
             }
         }
         // If image is taken by the Camera
-        if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE){
-            Toast.makeText(this, "Camera!", Toast.LENGTH_LONG).show();
+        if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE) {
             // send the captured image for feedback window.
             moveToFeedbackWindow(photoURI);
         }
 
     }
 
-    private void moveToFeedbackWindow(Uri selectedImageUri){
+    /**
+     * Switches current view to the feedback view.
+     * Feedback view where results are displayed.
+     *
+     * @param selectedImageUri: The Uri of the image we want to work with.
+     */
+    private void moveToFeedbackWindow(Uri selectedImageUri) {
+        // Create a new intent.
         Intent feedbackIntent = new Intent(MainActivity.this, Feedback_Window.class);
-        // Send image uri to feedback
+        // Pass image uri to the feedback view
         feedbackIntent.putExtra("ImageUri", selectedImageUri.toString());
+        // Start the intent.
         startActivity(feedbackIntent);
     }
-    // Opens the device's camera when users choose to use camera.
-    private void openDeviceCamera(){
+
+    /**
+     * Opens the device's camera.
+     */
+    private void openDeviceCamera() {
         // Create new intent
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // more information will be added once i understand this! :)
-        if (cameraIntent.resolveActivity(getPackageManager())!= null){
-            // create file for image
+        if (cameraIntent.resolveActivity(getPackageManager()) != null) {
+            // Create file for image
             File photoFile = null;
             try {
-                // call createImageFile to create the photo file
+                // Create an image file
                 photoFile = createImageFile();
-            } catch (IOException ex){
+            } catch (IOException ex) {
                 // error: file cannot be create
             }
-
-            if (photoFile != null){
-                // Store captured image URI.
-                 photoURI = FileProvider.getUriForFile(this,
+            // Once the image file has been created.
+            if (photoFile != null) {
+                // Store captured image Uri.
+                photoURI = FileProvider.getUriForFile(this,
                         "com.example.android fileprovider",
                         photoFile);
+                // Pass the future taken image Uri to intent
                 cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                // Start the intent.
                 startActivityForResult(cameraIntent, REQUEST_IMAGE_CAPTURE);
-
             }
-
         }
-
     }
-    // Create new image file
+
+    /**
+     * Creates an image file for the camera.
+     *
+     * @return Future image Uri.
+     * @throws IOException: Space, directory might not be found.
+     */
     private File createImageFile() throws IOException {
-        // Create in image file name
+        // Get current date and time.
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_"+timeStamp+"_";
+        // Create image name
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        // Get picture directory path.
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(imageFileName,".jpg",storageDir);
-        mCurrentPhotoPath = image.getAbsolutePath();
+        // Create the image file on the picture directory inside the device.
+        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
+        // Return image file instance.
         return image;
     }
-    // opens the gallery for users.
-    private void launchGallery(){
+
+    /**
+     * Opens the application's gallery
+     */
+    private void launchGallery() {
+        // Create a new intent for the gallery.
         Intent intent = new Intent(this, Gallery.class);
+        // Switch to the gallery view.
         startActivity(intent);
     }
 }
