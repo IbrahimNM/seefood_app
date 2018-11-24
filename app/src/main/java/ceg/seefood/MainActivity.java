@@ -31,7 +31,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     /**
      * MainActivity view.
-     *
      * @param savedInstanceState
      */
     @Override
@@ -59,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     /**
      * An onClick listener for the buttons initialized on initializeButtons();
-     *
      * @param v: MainActivity view
      */
     @Override
@@ -83,6 +81,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         "LinktoFrequentQustions.com");
                 infoDialog.show();
                 break;
+            default:
+                 // Do nothing --> Handling unknown type! (Good coding practice)
         }
     }
 
@@ -149,7 +149,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     /**
      * Handling image chooser intent, and device camera intent.
-     *
      * @param requestCode: Determines the last used intent.
      * @param resultCode:  Determines the status of the last used intent
      * @param data:        Executed intent.
@@ -193,7 +192,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * Switches current view to the feedback view.
      * Feedback view where results are displayed.
-     *
      * @param selectedImageUri: The Uri of the image we want to work with.
      */
     private void moveToFeedbackWindow(Uri selectedImageUri) {
@@ -237,7 +235,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     /**
      * Creates an image file for the camera.
-     *
      * @return Future image Uri.
      * @throws IOException: Space, directory might not be found.
      */
