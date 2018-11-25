@@ -1,5 +1,6 @@
 package ceg.seefood;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -52,7 +53,7 @@ public class Feedback_Window extends AppCompatActivity {
 
         // Display image to user
         picture.setImageURI(imageUri);
-
+        final Context tmpCont = getApplicationContext();
         // TODO: check that the server has reponsed to all submitted images before show the results.
         try {
             // Convert image to bitmap.
@@ -70,15 +71,40 @@ public class Feedback_Window extends AppCompatActivity {
                         @Override
                         public void onResponse(String response) {
                             // Display reponse to user
-                            _theResult.setText(response.substring(0, response.indexOf('[')).toUpperCase());
-                            _theStats.setText(response.substring(response.indexOf('[')+2, response.length()-3));
+                            _theResult.setText(response);
+                            //_theResult.setText(response.substring(0, response.indexOf('[')).toUpperCase());
+                            String[] stats = response.substring(response.indexOf('[')+2, response.length()-4).split("\\s+");
+                            // Declare variables for stats.
+                            Float food = null;
+                            Float notfood = null;
+
+                            // Try obtaining the statistics from the response.
+                            // I had to do this because the server's response syntax comes in two forms!!
+                            try {
+                                notfood = Float.parseFloat(stats[1]);
+                                food = Float.parseFloat(stats[0]);
+                            } catch (Exception e){
+                                // Number format exception error will be thrown if the parsing process fail.
+                            }
+
+
+                            // Check if statistics values have not been updated
+                            if (food == null || notfood == null){
+                                // then it's food
+                                notfood = Float.parseFloat(stats[2]);
+                                food = Float.parseFloat(stats[1]);
+                            }
+
+                            // Start the confident calculation. Confident = |food| / (|food| + |notfood|)
+                            Float confident = (Math.abs(food)/(Math.abs(food) + Math.abs(notfood)))* 100;
+                            _theStats.setText(confident.toString() + "%");
+
                         }
                     },
                     new Response.ErrorListener() { // Error listener
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             Toast.makeText(getApplicationContext(), "Failed to connect to server! Please try again ...", Toast.LENGTH_LONG).show();
-
                         }
                     }){
 
