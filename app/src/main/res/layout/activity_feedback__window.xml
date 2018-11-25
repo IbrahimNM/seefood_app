@@ -43,5 +43,13 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:text="Statistics" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="@style/CustomProgressBar"
+            android:max="100"
+            android:progress="0"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
