@@ -74,7 +74,7 @@ public class Feedback_Window extends AppCompatActivity {
                         @Override
                         public void onResponse(String response) {
                             // Display reponse to user
-                            _theResult.setText(response);
+                            //_theResult.setText("Waiting for analysis ... ");
                             //_theResult.setText(response.substring(0, response.indexOf('[')).toUpperCase());
                             String[] stats = response.substring(response.indexOf('[')+2, response.length()-4).split("\\s+");
                             // Declare variables for stats.
@@ -101,8 +101,18 @@ public class Feedback_Window extends AppCompatActivity {
                             // Start the confident calculation. Confident = |food| / (|food| + |notfood|)
                             Float confident = (Math.abs(food)/(Math.abs(food) + Math.abs(notfood)))* 100;
                             _theStats.setText(confident.toString() + "%");
+
+                            // Update determined results
+                            if (confident >= 75){
+                                _theResult.setText("This is food!");
+                            } else if ( confident >= 45 && confident < 75){
+                                _theResult.setText("This might be food!!");
+                            } else {
+                                _theResult.setText("This is not food!");
+                            }
                             // Update confident bar.
                             _confidentBar.setProgress(confident.intValue());
+
                         }
                     },
                     new Response.ErrorListener() { // Error listener
