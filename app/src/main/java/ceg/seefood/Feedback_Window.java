@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,6 +34,7 @@ public class Feedback_Window extends AppCompatActivity {
     TextView _theResult, _theStats;
     final String serverURL  = "http://seefood.moostermiko.com/appsubmit";
     Bitmap mImage;
+    private ProgressBar _confidentBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +44,7 @@ public class Feedback_Window extends AppCompatActivity {
         picture = (ImageView) findViewById(R.id.theImage);
         _theResult = (TextView) findViewById(R.id.theResult);
         _theStats = (TextView) findViewById(R.id.theStatistics);
+        _confidentBar = findViewById(R.id.progressBar);
 
         // Retrieve passed data
         String passedUri = getIntent().getStringExtra("ImageUri");
@@ -98,7 +101,8 @@ public class Feedback_Window extends AppCompatActivity {
                             // Start the confident calculation. Confident = |food| / (|food| + |notfood|)
                             Float confident = (Math.abs(food)/(Math.abs(food) + Math.abs(notfood)))* 100;
                             _theStats.setText(confident.toString() + "%");
-
+                            // Update confident bar.
+                            _confidentBar.setProgress(confident.intValue());
                         }
                     },
                     new Response.ErrorListener() { // Error listener
