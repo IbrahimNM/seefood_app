@@ -40,6 +40,7 @@ We use [Github](https://github.com/) for versioning. For the versions available,
 
 * **Brittany Woods** - [Github account](https://github.com/w029bnw)
 * **Ibrahim Almohaimeed** - [Github account](https://github.com/IbrahimNM)
+* **Rafael Nunez** - [Github account](https://github.com/rnunez95)
 
 ## License
 
