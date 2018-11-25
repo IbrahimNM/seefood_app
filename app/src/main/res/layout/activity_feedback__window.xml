@@ -34,7 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:text="RESULT"
+            android:text="Waiting for analysis..."
             android:textStyle="bold" />
 
         <TextView
@@ -42,7 +42,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:text="Statistics" />
+            android:text="--" />
 
         <ProgressBar
             android:id="@+id/progressBar"
