@@ -2,6 +2,7 @@ package ceg.seefood;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
@@ -22,6 +23,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -50,109 +52,130 @@ public class Feedback_Window extends AppCompatActivity {
         String passedUri = getIntent().getStringExtra("ImageUri");
         // Parse the String to an actual Uri
         Uri imageUri = Uri.parse(passedUri);
-
         // Create a file name for submittion
         final String fileName = new SimpleDateFormat("yyyyMMddHHmmss'.jpeg'").format(new Date());
+        //Toast.makeText(this, "Uri 2: " + imageUri, Toast.LENGTH_LONG).show();
 
         // Display image to user
         picture.setImageURI(imageUri);
         final Context tmpCont = getApplicationContext();
-        // TODO: check that the server has reponsed to all submitted images before show the results.
-        try {
-            // Convert image to bitmap.
-            mImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+        //Toast.makeText(getApplicationContext(), "path: "+ imageUri, Toast.LENGTH_LONG).show();
 
-            // -------------- Sends image to seefood server -------------------------
-            Toast.makeText(getApplicationContext(), "Analyzing image ....", Toast.LENGTH_LONG).show();
-            // Initialize a new RequestQueue instance
-            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
 
-            // Initialize a new ImageRequest
-            StringRequest imageRequest = new StringRequest(Request.Method.POST,
-                    serverURL, // Image URL
-                    new Response.Listener<String>() { // Bitmap listener
-                        @Override
-                        public void onResponse(String response) {
-                            // Display reponse to user
-                            //_theResult.setText("Waiting for analysis ... ");
-                            //_theResult.setText(response.substring(0, response.indexOf('[')).toUpperCase());
-                            String[] stats = response.substring(response.indexOf('[')+2, response.length()-4).split("\\s+");
-                            // Declare variables for stats.
-                            Float food = null;
-                            Float notfood = null;
+        // Try
+        /*try {
+            File tmp = new File(imageUri.getPath());
+            imageUri = Uri.fromFile(tmp);
 
-                            // Try obtaining the statistics from the response.
-                            // I had to do this because the server's response syntax comes in two forms!!
-                            try {
-                                notfood = Float.parseFloat(stats[1]);
-                                food = Float.parseFloat(stats[0]);
-                            } catch (Exception e){
-                                // Number format exception error will be thrown if the parsing process fail.
+        } catch (Exception s){
+
+        }*/
+        // Exclusive OR gate for this case.
+
+            try {
+                // This commented code allow the gallery to send images to server.
+                /*try {
+                    File tmp = new File(imageUri.getPath());
+                    imageUri = Uri.fromFile(tmp);
+
+                } catch (Exception s){
+
+                }*/
+                // Convert image to bitmap.
+                mImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+                // -------------- Sends image to seefood server -------------------------
+                Toast.makeText(getApplicationContext(), "Analyzing image ....", Toast.LENGTH_LONG).show();
+                // Initialize a new RequestQueue instance
+                RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+
+                // Initialize a new ImageRequest
+                StringRequest imageRequest = new StringRequest(Request.Method.POST,
+                        serverURL, // Image URL
+                        new Response.Listener<String>() { // Bitmap listener
+                            @Override
+                            public void onResponse(String response) {
+                                // Display reponse to user
+                                //_theResult.setText("Waiting for analysis ... ");
+                                //_theResult.setText(response.substring(0, response.indexOf('[')).toUpperCase());
+                                String[] stats = response.substring(response.indexOf('[') + 2, response.length() - 4).split("\\s+");
+                                // Declare variables for stats.
+                                Float food = null;
+                                Float notfood = null;
+
+                                // Try obtaining the statistics from the response.
+                                // I had to do this because the server's response syntax comes in two forms!!
+                                try {
+                                    notfood = Float.parseFloat(stats[1]);
+                                    food = Float.parseFloat(stats[0]);
+                                } catch (Exception e) {
+                                    // Number format exception error will be thrown if the parsing process fail.
+                                }
+
+
+                                // Check if statistics values have not been updated
+                                if (food == null || notfood == null) {
+                                    // then it's food
+                                    notfood = Float.parseFloat(stats[2]);
+                                    food = Float.parseFloat(stats[1]);
+                                }
+
+                                // Start the confident calculation. Confident = |food| / (|food| + |notfood|)
+                                Float confident = (Math.abs(food) / (Math.abs(food) + Math.abs(notfood))) * 100;
+                                int _confident = Math.round(confident);
+                                _theStats.setText(_confident + "%");
+
+                                // Update determined results
+                                if (confident >= 75) {
+                                    _theResult.setText("This is food!");
+                                } else if (confident >= 45 && confident < 75) {
+                                    _theResult.setText("This might be food!!");
+                                } else {
+                                    _theResult.setText("This is not food!");
+                                }
+                                // Update confident bar.
+                                _confidentBar.setProgress(confident.intValue());
+
                             }
-
-
-                            // Check if statistics values have not been updated
-                            if (food == null || notfood == null){
-                                // then it's food
-                                notfood = Float.parseFloat(stats[2]);
-                                food = Float.parseFloat(stats[1]);
+                        },
+                        new Response.ErrorListener() { // Error listener
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Toast.makeText(getApplicationContext(), "Failed to connect to server! Please try again ...", Toast.LENGTH_LONG).show();
                             }
+                        }) {
 
-                            // Start the confident calculation. Confident = |food| / (|food| + |notfood|)
-                            Float confident = (Math.abs(food)/(Math.abs(food) + Math.abs(notfood)))* 100;
-                            _theStats.setText(confident.toString() + "%");
+                    @Override
+                    protected Map<String, String> getParams() {
+                        Map<String, String> params = new HashMap<String, String>();
+                        params.put("file", encodeToBase64(mImage, Bitmap.CompressFormat.JPEG, 100));
+                        params.put("name", fileName);
+                        return params;
+                    }
+                };
+                imageRequest.setRetryPolicy(new RetryPolicy() {
+                    @Override
+                    public int getCurrentTimeout() {
+                        return 50000;
+                    }
 
-                            // Update determined results
-                            if (confident >= 75){
-                                _theResult.setText("This is food!");
-                            } else if ( confident >= 45 && confident < 75){
-                                _theResult.setText("This might be food!!");
-                            } else {
-                                _theResult.setText("This is not food!");
-                            }
-                            // Update confident bar.
-                            _confidentBar.setProgress(confident.intValue());
+                    @Override
+                    public int getCurrentRetryCount() {
+                        return 50000;
+                    }
 
-                        }
-                    },
-                    new Response.ErrorListener() { // Error listener
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Toast.makeText(getApplicationContext(), "Failed to connect to server! Please try again ...", Toast.LENGTH_LONG).show();
-                        }
-                    }){
+                    @Override
+                    public void retry(VolleyError error) throws VolleyError {
 
-                @Override
-                protected Map<String,String> getParams(){
-                    Map<String,String> params = new HashMap<String, String>();
-                    params.put("file", encodeToBase64(mImage, Bitmap.CompressFormat.JPEG, 100));
-                    params.put("name", fileName );
-                    return params;
-                }
-            };
-            imageRequest.setRetryPolicy(new RetryPolicy() {
-                @Override
-                public int getCurrentTimeout() {
-                    return 50000;
-                }
+                    }
+                });
+                // Add ImageRequest to the RequestQueu
+                requestQueue.add(imageRequest);
 
-                @Override
-                public int getCurrentRetryCount() {
-                    return 50000;
-                }
+            } catch (Exception e) {
+                // if image is not found.
+                Toast.makeText(getApplicationContext(), "Error: Image not found!", Toast.LENGTH_LONG).show();
+            }
 
-                @Override
-                public void retry(VolleyError error) throws VolleyError {
-
-                }
-            });
-            // Add ImageRequest to the RequestQueu
-            requestQueue.add(imageRequest);
-
-        } catch (IOException e){
-            // if image is not found.
-            Toast.makeText(getApplicationContext(), "Error: Image not found!", Toast.LENGTH_LONG).show();
-        }
 
     }
 

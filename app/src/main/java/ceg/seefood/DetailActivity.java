@@ -1,7 +1,10 @@
 package ceg.seefood;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -18,9 +21,11 @@ import android.view.ViewGroup;
 
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
+import java.io.File;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
@@ -115,7 +120,8 @@ public class DetailActivity extends AppCompatActivity {
          * fragment.
          */
 
-        String name, url;
+        String name;
+        String url;
         int pos;
         private static final String ARG_SECTION_NUMBER = "section_number";
         private static final String ARG_IMG_TITLE = "image_title";
@@ -157,6 +163,22 @@ public class DetailActivity extends AppCompatActivity {
             View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
             final ImageView imageView = (ImageView) rootView.findViewById(R.id.detail_image);
             Glide.with(getActivity()).load(url).thumbnail(0.1f).into(imageView);
+
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent feedbackIntent = new Intent(getActivity(), Feedback_Window.class);
+                    try {
+                        File tmp = new File(url);
+                        // = Uri.fromFile(tmp);
+                        feedbackIntent.putExtra("ImageUri", Uri.fromFile(tmp).toString());
+                        startActivity(feedbackIntent);
+                    } catch (Exception s){
+
+                    }
+
+                }
+            });
             return rootView;
         }
     }
