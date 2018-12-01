@@ -1,5 +1,7 @@
 package ceg.seefood;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -157,6 +159,17 @@ public class DetailActivity extends AppCompatActivity {
             View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
             final ImageView imageView = (ImageView) rootView.findViewById(R.id.detail_image);
             Glide.with(getActivity()).load(url).thumbnail(0.1f).into(imageView);
+
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent feedbackIntent = new Intent(getActivity(), Feedback_Window.class);
+                    //String uri = url.substring(url.lastIndexOf("/")+1);
+                    //Uri _uri = Uri.parse(uri);
+                    feedbackIntent.putExtra("ImageUri", url);
+                    startActivity(feedbackIntent);
+                }
+            });
             return rootView;
         }
     }
