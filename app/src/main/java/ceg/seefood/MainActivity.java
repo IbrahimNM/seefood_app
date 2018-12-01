@@ -162,6 +162,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // Check if multiple images were selected
             if (data.getClipData() != null) {
 
+                // Multiple images were selected.
+                Toast.makeText(this, "Multiple!", Toast.LENGTH_LONG).show();
                 // Send selected images to the feedback view.
                 for (int i = 0; i < data.getClipData().getItemCount(); i++) {
                     // Display image sequentially on the feedback view.
@@ -174,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             } else {
                 // A single image was selected.
-                Toast.makeText(this, "Single!", Toast.LENGTH_LONG).show();
+               // Toast.makeText(this, "Single!" + data.getData().toString(), Toast.LENGTH_LONG).show();
                 // Send the single image to the feedback view
                 if (data.getData() != null) {
                     moveToFeedbackWindow(data.getData());
