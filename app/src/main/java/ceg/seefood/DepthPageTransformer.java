@@ -3,6 +3,11 @@ package ceg.seefood;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 
+/*
+* This is the transformer for the viewPager. It adjusts the image fragment to be inflated
+* to a slightly larger size when it is swiped to by the user.
+*/
+
 public class DepthPageTransformer implements ViewPager.PageTransformer {
 
     private static final float MIN_SCALE = 0.75f;

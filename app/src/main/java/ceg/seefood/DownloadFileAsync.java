@@ -12,6 +12,10 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
+/*
+* This class extends AsyncTask in order to download the gallery from the server as a zip file.
+*/
+
 class DownloadFileAsync extends AsyncTask<String, String, String> {
 
     @Override

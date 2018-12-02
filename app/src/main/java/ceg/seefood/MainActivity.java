@@ -1,6 +1,7 @@
 package ceg.seefood;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -37,6 +38,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // request permissions
+        requestPermissions();
 
         // initialize buttons
         initializeButtons();
@@ -105,17 +109,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 // Option at index[0]
                 if (which == 0) {
-                    // If user chooses camera, then open camera.
-                    if (ActivityCompat.checkSelfPermission(
-                            MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                        ActivityCompat.requestPermissions(MainActivity.this,
-                                new String[]{Manifest.permission.CAMERA}, REQUEST_IMAGE_CAPTURE);
-                        // TODO: Handle the case if user refuse to grant camera permission
-                        openDeviceCamera();
-                    } else {
-                        // Open camera.
-                        openDeviceCamera();
-                    }
+                    openDeviceCamera();
 
                 } else {
                     // Option other than option at index[0]
@@ -209,6 +203,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * Opens the device's camera.
      */
     private void openDeviceCamera() {
+
+        // Return if permissions aren't granted
+        if(!requestPermissions()){
+            return;
+        }
+
         // Create new intent
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // more information will be added once i understand this! :)
@@ -257,9 +257,47 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * Opens the application's gallery
      */
     private void launchGallery() {
+
+        // return if permissions aren't granted
+        if(!requestPermissions()){
+            return;
+        }
         // Create a new intent for the gallery.
         Intent intent = new Intent(this, Gallery.class);
         // Switch to the gallery view.
         startActivity(intent);
+    }
+
+    // Checks whether the app has the permissions to run the camera and open the gallery
+    public static boolean hasPermissions(Context context, String... permissions){
+
+        if(context != null && permissions != null){
+            for(String permission : permissions){
+                if(ActivityCompat.checkSelfPermission(context,permission) != PackageManager.PERMISSION_GRANTED){
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    // Requests necessary permissions for gallery and camera use.
+    public boolean requestPermissions(){
+        int PERMISSIONS_ALL = 1;
+        String[] PERMISSIONS = {
+                Manifest.permission.CAMERA,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+        };
+
+        if(!hasPermissions(this, PERMISSIONS)){
+            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSIONS_ALL);
+        }
+
+        if(!hasPermissions(this, PERMISSIONS)){
+            return false;
+        } else{
+            return true;
+        }
     }
 }

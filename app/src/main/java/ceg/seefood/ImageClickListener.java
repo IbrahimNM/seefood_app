@@ -7,6 +7,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 
+/*
+* This class creates a custom listener that opens the viewPager should any image in the gallery
+* be selected by the user. The viewPager then allows the user to swipe through each image in the
+* gallery and select any image from the viewPager for its analysis results.
+*/
+
 public class ImageClickListener implements RecyclerView.OnItemTouchListener {
 
     private OnItemClickListener _Listener;
