@@ -97,6 +97,8 @@ public class Gallery extends AppCompatActivity {
         adapter = new GalleryAdapter(Gallery.this, images);
         recyclerView.setAdapter(adapter);
 
+        // If an image is clicked we want to open the viewPager and allow the user to swipe through
+        // the gallery
         recyclerView.addOnItemTouchListener(new ImageClickListener(this,
                 new ImageClickListener.OnItemClickListener() {
                     @Override

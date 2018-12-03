@@ -19,9 +19,25 @@ An Android mobile device with a minimum SDK of 18.
 Internet connectivity.
 ```
 
+### Installing
+
+* Running on Android Device
+
+  1. Download and unzip project folder from GitHub
+  2. Connect Android device to computer via USB cable and enable file sharing
+  3. Copy the release APK from the release folder within the root directory of the project into a desired folder on the Android Device
+  4. Using the Android Device, click the APK file and give the app permissions to install
+
 ## Deployment
 
-Add additional notes about how to deploy this on a live system
+Once installed onto the Android Device, the SeeFood app can be deplyed through the device's app menu by clicking on its icon.
+
+### Note
+
+If issues are experienced during installation, make sure that the Android device is able to install apps from Unknown Sources. This
+setting can be changed at ```Settings->Security``` and checking the option under Device Administration.
+
+### Using the App
 
 ## Built With
 

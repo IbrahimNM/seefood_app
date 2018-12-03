@@ -31,23 +31,16 @@ import java.util.ArrayList;
 
 public class DetailActivity extends AppCompatActivity {
 
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
     private SectionsPagerAdapter mSectionsPagerAdapter;
     public ArrayList<GalleryItem> images = new ArrayList<>();
     int pos;
     Toolbar toolbar;
-
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
     private ViewPager mViewPager;
+
+    /*
+    * Creates a viewPager that will show a slightly larger version of each image, and will allow
+    * the user to swipe through the images contained in the gallery.
+    * */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -164,13 +157,16 @@ public class DetailActivity extends AppCompatActivity {
             final ImageView imageView = (ImageView) rootView.findViewById(R.id.detail_image);
             Glide.with(getActivity()).load(url).thumbnail(0.1f).into(imageView);
 
+            /*
+            * If the image currently in view of the viewPager is selected again by the user,
+            * it will be resubmitted to the server for the results on its analysis
+            */
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent feedbackIntent = new Intent(getActivity(), Feedback_Window.class);
                     try {
                         File tmp = new File(url);
-                        // = Uri.fromFile(tmp);
                         feedbackIntent.putExtra("ImageUri", Uri.fromFile(tmp).toString());
                         startActivity(feedbackIntent);
                     } catch (Exception s){
@@ -183,10 +179,6 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         public ArrayList<GalleryItem> images = new ArrayList<>();
